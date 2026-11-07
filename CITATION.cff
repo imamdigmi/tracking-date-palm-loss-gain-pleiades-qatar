@@ -1,0 +1,14 @@
+cff-version: 1.2.0
+message: "If you use this code, please cite it as below."
+title: "Code for: Tracking individual date palm loss and gain across 20 Pléiades epochs in Qatar"
+version: 1.0.0
+date-released: 2026-11-07
+license: MIT
+repository-code: "https://github.com/imamdigmi/tracking-date-palm-loss-gain-pleiades-qatar"
+authors:
+  - family-names: Taufiq
+    given-names: Imam
+    affiliation: "Bina Nusantara University"
+  - family-names: Isa
+    given-names: Sani M.
+    affiliation: "Bina Nusantara University"
