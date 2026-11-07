@@ -1,7 +1,7 @@
 # Tracking date palm loss and gain in Pléiades time series (Qatar)
 
 Pilot code for detecting date palm loss/gain events from multi-temporal
-Pléiades imagery of 37 farms in Qatar (2012-2026). It covers data audit,
+Pléiades imagery of 36 farms in Qatar (2012-2026). It covers data audit,
 registration, site/observation matrices, event candidates, a semi-synthetic
 benchmark (gate G1) and evaluation on human-labelled real events (gate G2).
 

@@ -7,6 +7,7 @@ pipeline/graphical-abstract labels, whose numbers are read from the same files.
 """
 import argparse
 import json
+import os
 import re
 from pathlib import Path
 
@@ -14,6 +15,16 @@ import numpy as np
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parent / "out"
+# Optional farm-ID relabelling for figure text and paper_numbers.json: FARM_ID_MAP = JSON file {"<id in data>": "<code>"}.
+# Unset (public data already uses F### codes): ids pass through unchanged.
+FARM_MAP_PATH = os.environ.get("FARM_ID_MAP")
+FARM_MAP = json.load(open(FARM_MAP_PATH)) if FARM_MAP_PATH else {}
+
+
+def farm_label(f):
+    return FARM_MAP.get(str(f), str(f))
+
+
 MS = ["B3", "B4", "B5", "A"]
 COL = {"B0": "#bbbbbb", "B3": "#7f7f7f", "B4": "#56b4e9", "B5": "#0072b2", "A": "#d55e00"}  # Okabe-Ito, colour-blind safe
 NAME = {"B3": "B3 run-length", "B4": "B4 HMM, constant p_det", "B5": "B5 HMM, farm-epoch p_det", "A": "A HMM, quality covariates"}
@@ -121,7 +132,7 @@ def fig_filmstrip(out, plt, review_id):
             s.set_visible(False)
     fig.subplots_adjust(wspace=0.04, hspace=0.25)
     save(fig, out, "Figure_3", dpi=600); plt.close(fig)
-    return dict(review_id=review_id, farm=r.farm, label=r.label, change_epoch=r.change_epoch, verdict=r.verdict,
+    return dict(review_id=review_id, farm=farm_label(r.farm), label=r.label, change_epoch=r.change_epoch, verdict=r.verdict,
                 first=r.first_change_epoch, second=r.second_change_epoch, n_img=len(files))
 
 
