@@ -1,0 +1,39 @@
+# Threshold go/no-go pilot. Ditetapkan SEBELUM melihat hasil G1+; ubah hanya dengan alasan tertulis di vault.
+# Sumber: run_001, 13 dari 40 tile direview (t000-t009, t017, t019, t024), 2026-11-01.
+seed_precision:            # gate tree-seed S2
+  tiers: [high]            # med: 0.99 (7 tile) -> 0.79 (10) -> 0.804 (13), lolos tipis dan tidak stabil; low: 0.48. Keduanya tidak stabil antar tile.
+  min_precision: 0.80
+  measured: {high: 1.00, med: 0.804, low: 0.484, overall_all_tiers: 0.806}
+  recall_3_tile_lengkap: {high: 0.558, high_med: 0.721, semua: 0.897}   # t017 tanpa high sama sekali; t019 ~0.97 dan t024 ~0.88 (perkiraan dari jumlah GT per tile)
+  n_auto: {high: 317, med: 158, low: 190}
+  status: PASS             # hanya untuk tier high
+  caveats: [n_tile=13, recall_hanya_3_tile_(n=165), GT_dari_koreksi_model_(bias_konfirmasi), false_positive_med_low_di_tile_pohon_non_kurma]
+match_radius_m: 2.0
+
+# --- Pre-registration G0-G3, disetujui owner 2026-11-01, SEBELUM S0/G1 dijalankan. Ubah hanya dengan alasan tertulis di vault. ---
+g0_data:
+  min_farms: 30            # dari 36 farm
+  min_valid_epochs: 12     # dari 20 epoch per farm
+  max_nodata_pct: 10       # dalam mask farm
+radius_site_m: 2.5         # sensitivitas wajib 1.5-4 (menggantikan match_radius_m 2.0 hanya untuk G1+; seed tetap 2.0)
+g1_synthetic:              # A vs run-length baseline (B3, terinspirasi Reiner) + HMM, kebenaran diketahui; hanya bisa MENOLAK
+  win_if: brier_lower_and_recall_at_fa_higher
+  ci: bootstrap_per_farm_95   # CI beda tidak boleh mencakup 0
+  always_no_change_method: fail   # recall event 0 = gagal
+  # Diperjelas 2026-11-05 SEBELUM S7 dijalankan (alasan: vault Process/019). Tidak mengubah aturan menang.
+  fixed_fa: 0.05             # recall dihitung pada FPR site negatif (stable+flicker) <= 5% per farm; sensitivitas 0.01/0.10
+  event_time_tol_epochs: 1   # event terhitung benar bila jenis benar dan epoch perubahan meleset <= 1 epoch
+  primary_family: mismatched # stress/matched/null dilaporkan, bukan penentu
+  must_beat: [B3, B4, B5]
+g2_real_events:            # menentukan GO; farm held-out
+  same_rule_as: g1_synthetic
+  min_loss: 80
+  min_gain: 40
+  min_farms: 6
+  min_kappa: 0.6
+  # Dijalankan 2026-11-06 (pilot/s8_g2.py, vault Process/024). Penyimpangan tertulis di vault Process/023 sebelum run.
+  status: FAIL   # A tidak menang atas B3/B4/B5. kappa intra-rater 0.75 (n=30); syarat inter-rater TIDAK terpenuhi (GRRAS, vault Process/025). n: loss 76, gain 39, negatif 28 (hard negative). Label pakai note owner (meleset/bukan kurma -> dikeluarkan).
+g3_pgs:
+  max_event_recall_drop: 0.05   # absolut
+  require_primary_metric_gain: true
+  stop_if_oracle_stable_mask_no_help: true
